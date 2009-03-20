@@ -134,8 +134,8 @@ end
         <section param="main-content">
 <% end -%>
           <header param="content-header">
-<% if  back_link -%>
-            <a:<%= back_link %> param="parent-link">&laquo; <trans key="page.show.back_link"><name/></trans></a:<%= back_link %>>
+<% if back_link -%>
+            <a:<%= back_link %> param="parent-link">&laquo; <trans key="action.back" to="<%= back_link %>"><name/></trans></a:<%= back_link %>>
 <% end -%>
             <h2 param="heading">
               <trans key="page.show.heading" model="<%= model_name :lowercase %>" name="&this.name">
@@ -156,7 +156,7 @@ end
 <% if edit_link -%>
 
             <a action="edit" if="&can_edit?" param="edit-link">
-              <trans key="page.show.edit_link" model="<%=model_name :lowercase %>" name="&this.name">
+              <trans key="action.edit" model="<%=model_name :lowercase %>" name="&this.name">
                 Edit <%= model_name :title %>
               </trans>
             </a>
@@ -296,7 +296,7 @@ new_link = :new.in?(actions)
       <header param="content-header">
 <% if linkable_owner -%>
         <div param="back-to">
-          <trans key="page.index_for.back_link" owner="&@<%= owner %>" >Back to<a with="&@<%= owner %>"/></trans> 
+          <trans key="action.back" to="&@<%= owner %>" >Back to<a with="&@<%= owner %>"/></trans> 
         </div>
 <% end -%>
 <% if owner_is_user %>
