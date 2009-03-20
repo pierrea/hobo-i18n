@@ -475,11 +475,15 @@ module Hobo
     # --- ViewHint Helpers --- #
     
     def this_field_name
-      this_parent.class.view_hints.field_name(this_field)
+      key = this_parent.class.to_s.underscore+".field."+this_field.to_s+".name"
+      default = this_parent.class.view_hints.field_name(this_field) || ""
+      I18n.t(key,:default=>default)
     end
 
     def this_field_help
-      this_parent.class.view_hints.field_help[this_field.to_sym]
+      key = this_parent.class.to_s.underscore+".field."+this_field.to_s+".help"
+      default = this_parent.class.view_hints.field_help[this_field.to_sym] || ""
+      I18n.t(key,:default=>default)
     end
 
 
