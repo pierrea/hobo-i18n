@@ -32,6 +32,7 @@ module Hobo
       end
       
       def self.run
+        self.set_locale
         @generator ||= DrymlGenerator.new
         @generator.run
       end
@@ -234,6 +235,25 @@ module Hobo
       def a_or_an(word)
         (word =~ /^[aeiou]/i ? "an " : "a ") + word
       end
+      
+      ########################
+      ## Localization Hacks ##
+      ########################
+      
+      #Ugly hack to set the locale because for some reason the I18n.locale gets lost if set in environment.rb
+      # triggered with self.set_locale in self.run
+      def self.set_locale
+        I18n.locale = HOBO_LOCALE if HOBO_LOCALE
+      end
+      
+      def l(key, options)
+        I18n.l(key, options)
+      end
+        
+      def t(key, options)
+        I18n.t(key, options)
+      end
+        
             
     end
     
