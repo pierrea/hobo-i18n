@@ -102,3 +102,51 @@ collection is considered blank)
   new_field_context(fake_field, context) { res << parameters.default }
   res
 %></def>
+
+<!-- Localization: Tag uses the I18n.translate method 
+
+### Usage
+
+    <trans key="foo.bar"/> 
+      -> translate "foo.bar", :default=>:"hobo.foo.bar"
+    
+    <trans key="foo.bar" model="blub"> 
+      -> translate "blub.foo.bar", :default=>:"hobo.foo.bar", :model=>(translate "model.blub", :default=>"blub" )
+    
+    <trans key="foo.bar">Fallback</trans> 
+        -> translate "foo.bar", :default=>[:"hobo.foo.bar", "Fallback"]
+        
+    
+### Attributes
+
+  -key: Key for translation lookup
+  -model: Specialises the key & used for interpolation of defaults
+  -*: Pass other attributes to be interpolated in the strings
+-->
+<def tag="trans" attrs="key, model"><%= 
+  
+  ## use the :"hobo.#{key}" as the first fallback
+  defaults=["hobo.#{key}".to_sym]
+  
+  ## add the tag content (parameters.default) as the secondary fallback
+  defaults << parameters.default unless parameters.default.blank?
+   
+  attributes[:default] = defaults
+  
+  unless model.blank?
+    # translate the model for the secondary fallback
+    translated_model = I18n.translate( "#{model}.name", :default=>model.to_s).capitalize
+    attributes[:model] = translated_model
+  end
+  
+  key = "#{(model.nil? ? "": model.to_s.singularize+".")}#{key}".to_sym
+  
+  begin   
+    return key.to_s if HOBO_SHOW_LOCALE_KEYS 
+  rescue
+    puts "Set HOBO_SHOW_LOCALE_KEYS=true in your environment to get all locale keys displayed"
+  end
+  
+  I18n.translate(key, attributes)
+  
+%></def>
