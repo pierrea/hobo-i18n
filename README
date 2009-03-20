@@ -1,0 +1,173 @@
+== Welcome to Hobo-I18n
+
+This is just a I18n fork of git://github.com/tablatom/hobo.git
+
+== Main Features / Changes
+
+There is now a translation tag (see: hobo/rapid/core.dryml) that uses the RoR 2.2 I18n translate method. I started to translate the dryml generators in dryml_generators/rapid and a few other methods.
+
+
+== The Translate Tag <trans key="foo.bar">Fallback</trans>
+
+The main idea of the translate tag: Replace the wrapped content with the translated string identified by the key. 
+
+By using the content of the key as a default value its possible to leave the 
+templates mostly as they are. Just wrap the strings that shall be translated with the <trans> tag.
+
+If you don't provide a translation file/keys everything should keep as is.
+
+If you provide the matching keys, the inner content will be replaced by the translated string.
+
+=== The hobo scope (default) and the model attribute
+
+All standard translations are scoped with hobo (see below). If you want specific translations for specific models, just copy/add another scope with the name of the model. For example you can have a specific heading for a "customer" index page by giving the following translation key:
+
+customer.page.index.heading = "My special customer index heading"
+
+
+=== Issues
+
+- Automatic inflections are not really supported. (Just stay with the english defaults in most cases ;)) or use specific translation keys.
+
+- Could replace view-hints for most cases
+
+- <def tag="t"> didn't work :( Maybe someone else can dig into this.
+
+- No tests yet
+
+- A lot of methods still to be worked through :-/
+
+
+=== Usage Examples
+
+ <trans key="foo.bar"/> 
+   -> translate "foo.bar", :default=>:"hobo.foo.bar"
+ 
+ <trans key="foo.bar" model="blub"> 
+   -> translate "blub.foo.bar", :default=>:"hobo.foo.bar", :model=>(translate "model.blub", :default=>"blub" )
+ 
+ <trans key="foo.bar">Fallback</trans> 
+     -> translate "foo.bar", :default=>[:"hobo.foo.bar", "Fallback"]
+
+
+== (Example) Translation Files  
+
+=== English ===
+en:
+  hobo:
+    page:
+      index:
+        title: "{{model}} Index"
+        heading: "{{model}} Index"
+      new:
+        title: "New {{model}}"
+        heading: "New {{model}}"
+      show:
+        title:  "{{model}}"
+        heading: "{{model}}"
+        add_form_heading: "Add {{model}}"
+      edit:
+        title: "Edit {{model}}"
+        heading: "Edit {{model}}"
+      index_for:
+        title:
+          your: "Your {{model}}s"
+          other: "Your {{model}}s"
+        heading:
+          your: "Your {{model}}s"
+          other: "{{model}}s"
+          
+    collection:
+      count:
+        one: "There is only one {{model}} at the moment"
+        other: "There are already {{count}} {{model}}s"
+      heading:
+        your: "Your {{model}}s"
+        other: "{{model}}s"
+      add_form_heading: "Add {{model}}"
+        
+    action:
+      new: "New"
+      create: "Create"
+      previous: "Previous"
+      next:  "Next"
+      add: "Add"
+      more: "More"
+      delete: "Delete {{model}}"
+      save: "Save"
+      cancel: "Cancel"
+      back: "Back"
+      edit: "Edit {{model}}"
+      
+    form:
+      new:
+        heading: "New {{model}}"
+    
+    or: "or"
+    
+###
+###  This is how to define specific texts for other models (just c&p the above structure)
+###
+#  customer:
+#    page:
+#      index:
+#        title: "My special {{model}} Index title"
+#        heading: "For Premium {{model}}s "
+  
+
+=== German ===
+    
+de:
+  hobo:
+    page:
+      index:
+        title: "{{model}} Übersicht"
+        heading: "{{model}} Übersicht"
+      new:
+        title: "{{model}} erstellen"
+        heading: "{{model}} erstellen"
+      show:
+        title:  "{{model}}"
+        heading: "{{model}}"
+        back_link: "Zurück"
+        edit_link: "{{model}} bearbeiten"
+        new_link: "{{model}} erstellen"
+        add_form_heading: "{{model}} hinzufügen"
+      edit:
+        title: "{{model}} bearbeiten"
+        heading: "{{model}} bearbeiten"
+      index-for:
+        title:
+          your: "Deine {{model}}s"
+          other: "{{model}}s"
+        heading:
+          your: "Deine {{model}}s"
+          other: "{{model}}s"
+                   
+    collection:
+      count:
+        one: "Es gibt nur ein {{model}}"
+        other: "{{count}} {{model}}s"
+      heading:
+        your: "Deine {{model}}"
+        other: "Dein {{model}}"
+      add_form_heading:
+        recommendations: "{{model}} Hinzufügen"
+        
+    action:
+      new: "Neu"
+      create: "Erstellen"
+      previous: "Zurück"
+      next:  "Vor"
+      add: "Hinzufügen"
+      more: "Mehr"
+      delete: "{{model}} löschen"
+      save: "Speichern"
+      cancel: "Abbrechen"
+      edit: "{{model}} bearbeiten"
+    
+    form:
+      new:
+        heading: "{{model}} Erstellen"
+        
+    or: "oder"
