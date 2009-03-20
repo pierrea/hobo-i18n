@@ -36,7 +36,7 @@ show_title = !show_link && (name_attribute || !has_body)
       <div param="actions">
 <% if edit_link -%>
         <a action="edit" if="&can_edit?" param="edit-link">
-          <trans key="action.edit">Edit</trans>
+          <trans key="action.edit" model="<%= model.name %>">Edit</trans>
         </a>
 <% end -%>
 <% if delete_button -%>
