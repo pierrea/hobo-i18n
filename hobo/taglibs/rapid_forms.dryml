@@ -861,8 +861,8 @@ The body of the tag will be repeated for each of the current records in the coll
 <!-- Renders the common "or (Cancel)" for a form. Attributes are merged into the link (`<a>Cancel</a>`), making it easy to customise the destination of the cancel link. By default it will link to `this` or `this.class`.
   -->
 <def tag="or-cancel">
-  <if test="&linkable?">or <a merge-attrs>Cancel</a></if>
+  <if test="&linkable?"><trans key="hobo.or">or</trans> <a merge-attrs><trans key="hobo.action.cancel">Cancel</trans></a></if>
   <else>
-    <if test="&linkable?(this.class)">or <a to="&this.class" merge-attrs>Cancel</a></if>
+    <if test="&linkable?(this.class)"><trans key="hobo.or">or</trans> <a to="&this.class" merge-attrs><trans key="hobo.action.cancel">Cancel</trans></a></if>
   </else>
 </def>
