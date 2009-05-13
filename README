@@ -1,11 +1,10 @@
-== Welcome to Hobo-I18n
+== Welcome to the EXPERIMENTAL Hobo-I18n Fork
 
-This is just a I18n fork of git://github.com/tablatom/hobo.git
+This is just a (still Experimental) I18n fork of git://github.com/tablatom/hobo.git
 
 == Main Features / Changes
 
 There is now a translation tag (see: hobo/rapid/core.dryml) that uses the RoR 2.2 I18n translate method. I started to translate the dryml generators in dryml_generators/rapid and a few other methods.
-
 
 == The Translate Tag <trans key="foo.bar">Fallback</trans>
 
@@ -27,7 +26,9 @@ customer.page.index.heading = "My special customer index heading"
 
 === Issues
 
-- Automatic inflections are not really supported. (Just stay with the english defaults in most cases ;)) or use specific translation keys.
+- There are more conventions added by rails. Mainly the lazy lookup/automatic skin scoping http://guides.rubyonrails.org/i18n.html -> 4.1.4. This would lead to other scoping conventions. Maybe this should be considered later
+
+- Automatic inflections are no real use. (Just stay with the english defaults in most cases ;)) or use specific translation keys.
 
 - Could replace view-hints for most cases
 
@@ -40,19 +41,17 @@ customer.page.index.heading = "My special customer index heading"
 
 === Usage Examples
 
- <trans key="foo.bar"/> 
-   -> translate "foo.bar", :default=>:"hobo.foo.bar"
+ <trans key="books.foo.bar"/> 
+   -> translate "books.foo.bar", :default=>:"hobo.foo.bar", :model=>(translate "activerecord.models.book", :default=>"books")
  
- <trans key="foo.bar" model="blub"> 
-   -> translate "blub.foo.bar", :default=>:"hobo.foo.bar", :model=>(translate "model.blub", :default=>"blub" )
- 
- <trans key="foo.bar">Fallback</trans> 
-     -> translate "foo.bar", :default=>[:"hobo.foo.bar", "Fallback"]
-
-
+ <trans key="books.foo.bar">Fallback</trans> 
+   -> translate "books.foo.bar", :default=>[:"hobo.foo.bar", "Fallback"], :model=>(translate "activerecord.models.book", :default=>"books")
+     
 == (Example) Translation Files  
 
-=== English ===
+####
+#### Hobo Translation
+####
 en:
   hobo:
     page:
@@ -69,13 +68,16 @@ en:
       edit:
         title: "Edit {{model}}"
         heading: "Edit {{model}}"
-      index_for:
-        title:
-          your: "Your {{model}}s"
-          other: "Your {{model}}s"
+      index_for_owner:
+        title: "{{model}}s for"
         heading:
           your: "Your {{model}}s"
           other: "{{model}}s"
+        subheading: "For:"
+      new_for_owner:
+        title: "New {{model}} for"
+        heading: "New {{model}}"
+        subheading: "For:"  
           
     collection:
       count:
@@ -96,9 +98,22 @@ en:
       delete: "Delete {{model}}"
       save: "Save"
       cancel: "Cancel"
-      back: "Back"
+      back: "Back to"
       edit: "Edit {{model}}"
-      
+    
+    message:
+      create:
+        success: "The {{model}} was created successfully"
+        error: "Couldn't create the {{model}}.\n {{errors}}"
+      update:
+        no_attribute_error: "No update specified in params"
+        success: "Changes to the {{model}} were saved"        
+        error: "There was a problem with that change.\n{{errors}}"
+      destroy:
+        success: "The {{model}} was deleted"
+      permission_denied: "Permission Denied"
+      not_found: "The page you requested cannot be found."
+            
     form:
       new:
         heading: "New {{model}}"
@@ -117,44 +132,13 @@ en:
 
 === German ===
     
-de:
+####
+#### Hobo translations
+####      
+de:      
   hobo:
-    page:
-      index:
-        title: "{{model}} Übersicht"
-        heading: "{{model}} Übersicht"
-      new:
-        title: "{{model}} erstellen"
-        heading: "{{model}} erstellen"
-      show:
-        title:  "{{model}}"
-        heading: "{{model}}"
-        back_link: "Zurück"
-        edit_link: "{{model}} bearbeiten"
-        new_link: "{{model}} erstellen"
-        add_form_heading: "{{model}} hinzufügen"
-      edit:
-        title: "{{model}} bearbeiten"
-        heading: "{{model}} bearbeiten"
-      index-for:
-        title:
-          your: "Deine {{model}}s"
-          other: "{{model}}s"
-        heading:
-          your: "Deine {{model}}s"
-          other: "{{model}}s"
-                   
-    collection:
-      count:
-        one: "Es gibt nur ein {{model}}"
-        other: "{{count}} {{model}}s"
-      heading:
-        your: "Deine {{model}}"
-        other: "Dein {{model}}"
-      add_form_heading:
-        recommendations: "{{model}} Hinzufügen"
-        
-    action:
+    # hobos default action translation
+    actions:
       new: "Neu"
       create: "Erstellen"
       previous: "Zurück"
@@ -165,9 +149,91 @@ de:
       save: "Speichern"
       cancel: "Abbrechen"
       edit: "{{model}} bearbeiten"
+      back: "Zurück zu "
+      send: "Abschicken"
+      remove: "Entfernen"
+      
+    # hobos default message translation  
+    messages:
+      create:
+        success: "{{model}} wurde erstellt."
+        error: "{{model}} konnte nicht erstellt werden.\n {{errors}}"
+      update:
+        no_attribute_error: "Es wurden keine Attribute für die Bearbeitung übergeben."
+        success: "Die Änderungen wurden gespeichert."        
+        error: "Es gab Fehler bei der Änderung:\n{{errors}}"
+      destroy:
+        success: "{{model}} wurde gelöscht."
+      permission_denied: "Zugriff verweigert."
+      not_found: "Die gewünschte Seite wurde nicht gefunden."
+      no: "Kein {{model}} vorhanden."
+      confirm: "Sind Sie sicher?"
+      
+    # hobos default collection translation
+    collection:
+      count:
+        one: "Es gibt nur ein {{model}}"
+        other: "{{count}} {{model}}s"
+      heading:
+        your: "Deine {{model}}"
+        other: "Dein {{model}}"
+      add_form_heading:
+        recommendations: "{{model}} Hinzufügen"
+      empty_message: "Keine {{model}} vorhanden"
     
-    form:
+    # hobos form translation
+    forms:
       new:
         heading: "{{model}} Erstellen"
-        
-    or: "oder"
+      error:
+        heading: "Um fortzufahren korrigiere folgendes:"
+
+    # hobo support
+    support:
+      or: "oder"
+    
+    # hobos default pages translations
+    index:
+      title: "{{model}} Übersicht"
+      heading: "{{model}} Übersicht"
+    new:
+      title: "{{model}} erstellen"
+      heading: "{{model}} erstellen"
+    show:
+      title:  "{{model}}"
+      heading: "{{model}}"
+      back_link: "Zurück"
+      edit_link: "{{model}} bearbeiten"
+      new_link: "{{model}} erstellen"
+      add_form_heading: "{{model}} hinzufügen"
+    edit:
+      title: "{{model}} bearbeiten"
+      heading: "{{model}} bearbeiten"
+    index_for_owner:
+      title: "{{model}}s für"
+      heading:
+        your: "Deine {{model}}s"
+        other: "{{model}}s"
+      subheading: "Für:"    
+    new_for_owner:
+      title: "Neues {{model}} für"
+      heading: "Neues {{model}}"
+      subheading: "Für:"
+    news_posts:
+      edit:
+        delete:
+          label: löschen
+          heading: "Diesen Neuigkeiten-Beitrag löschen"
+
+    forgot_password:
+      title: "Passwort vergessen"
+      heading: "Passwort vergessen?"
+      text: "Gib hier die E-Mail Adresse ein, mit der du dich registriert hast. Wenn wir diese in unserer Datenbank finden, werden wir dir eine E-Mail senden, mit der du dir ein neues Passwort generieren kannst."
+    forgot_password_sent:
+      title: "Passwort vergessen - Email versendet"
+      heading: "Passwort vergessen - Email versendet"
+      text: "Wenn die E-Mail Adresse {{email}} in unserer Datenbank vorhanden ist, wird dir eine E-Mail mit weiteren Anweisungen zum Zurücksetzen deines Passworts zugesendet. Solltest du diese E-Mail nicht erhalten überprüfe bitte deinen Spam-Ordner."
+    account_disabled:
+      title: Account nicht verfügbar
+      heading: Account nicht verfügbar
+      text: Dieser Account ist derzeit nicht verfügbar.
