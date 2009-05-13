@@ -55,8 +55,8 @@ module Hobo
       (redirect_to home_page; return) if logged_in?
 
       login_attr = model.login_attribute.to_s.titleize.downcase
-      options.reverse_merge!(:success_notice => "You have logged in.",
-                             :failure_notice => "You did not provide a valid #{login_attr} and password.")
+      options.reverse_merge!(:success_notice => ht(:"users.messages.login.success", :default=>["You have logged in."]),
+                             :failure_notice => ht(:"users.messages.login.error", :login=>login_attr, :default=>["You did not provide a valid #{login_attr} and password."]))
 
       if request.post?
         user = model.authenticate(params[:login], params[:password])
@@ -88,8 +88,8 @@ module Hobo
     def hobo_do_signup(&b)
       do_creator_action(:signup) do
         if valid?
-          flash[:notice] = "Thanks for signing up!"
-          flash[:notice] << " You must activate your account before you can log in. Please check your email." unless this.account_active?
+          flash[:notice] = ht(:"users.messages.signup.success", :default=>["Thanks for signing up!"])
+          flash[:notice] << ht(:"users.messages.signup.must_activate", :default=>[" You must activate your account before you can log in. Please check your email."]) unless this.account_active?
         end
         response_block(&b) or if valid?
                                 self.current_user = this if this.account_active?
@@ -100,7 +100,7 @@ module Hobo
 
 
     def hobo_logout(options={})
-      options = options.reverse_merge(:notice => "You have logged out.",
+      options = options.reverse_merge(:notice => ht(:"users.messages.logout", :default=>["You have logged out."]),
                                       :redirect_to => base_url)
 
       logout_current_user
@@ -125,7 +125,7 @@ module Hobo
       do_transition_action :reset_password do
         response_block(&b) or if valid?
                                 self.current_user = this
-                                flash[:notice] = "Your password has been reset"
+                                flash[:notice] = ht(:"users.messages.reset_password", :default=>["Your password has been reset"])
                                 redirect_to home_page
                               end
       end
@@ -134,7 +134,7 @@ module Hobo
 
     def hobo_update_with_account_flash(*args)
       hobo_update_without_account_flash(*args) do
-        flash[:notice] = "Changes to your account were saved" if valid? && @this == current_user
+        flash[:notice] = ht(:"users.messages.update.success", :default=>["Changes to your account were saved"]) if valid? && @this == current_user
         yield if block_given?
       end
     end

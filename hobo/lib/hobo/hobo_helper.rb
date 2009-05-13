@@ -475,13 +475,13 @@ module Hobo
     # --- ViewHint Helpers --- #
     
     def this_field_name
-      key = this_parent.class.to_s.underscore+".field."+this_field.to_s+".name"
+      key = "#{this_parent.class.name.underscore}.#{this_field.to_s}"
       default = this_parent.class.view_hints.field_name(this_field) || ""
-      I18n.t(key,:default=>default)
+      I18n.t(key, :default => default, :scope => [:activerecord, :attributes], :count => 1)
     end
 
     def this_field_help
-      key = this_parent.class.to_s.underscore+".field."+this_field.to_s+".help"
+      key = "#{this_parent.class.name.pluralize.underscore}.hints.#{this_field.to_s}"
       default = this_parent.class.view_hints.field_help[this_field.to_sym] || ""
       I18n.t(key,:default=>default)
     end
@@ -499,6 +499,52 @@ module Hobo
       logger.debug("DRYML THIS = #{this.typed_id rescue this.inspect}")
       logger.debug("###################\n")
       args.first unless args.empty?
+    end
+    
+    # --- Translation Helper --- #
+
+    #
+    # Just a wrapper around I18n.translate
+    #
+    # Adds some conventions for easier hobo translation 
+    # 1.Assumes the first part of the key to be a model name (e.g.: users.index.title -> user)
+    # 2.Tries to translate the model by lookup for: (e.g.: user-> activerecord.models.user)
+    # 3.Adds a default fallback to the beginning of the fallback chain 
+    #   by replacing the first part of the key with "hobo" and using the translated model name ass additional attribute
+    #   This allows us to have default translations (e.g.: hobo.index.title = "{{model}} Index") 
+    def ht(key, options={})
+    
+      # assume the first part of the key to be the model
+      keys = key.to_s.split(".")
+      if keys.length > 1
+        model = keys.shift()
+        subkey = keys.join(".")
+      else
+        subkey = key
+      end
+    
+      # add :"hobo.#{key}" as the first fallback
+      if options[:default].blank?
+        options[:default]=[]
+      elsif options[:default].class != Array
+        options[:default] = [options[:default]]
+      end
+      options[:default].unshift("hobo.#{subkey}".to_sym)
+    
+      # translate the model
+      unless model.blank?
+        translated_model = I18n.translate( "activerecord.models.#{model.singularize.underscore}", :default=>model).titleize
+        options[:model] = translated_model
+      end
+    
+      begin   
+        key_prefix = "<span class='translation-key'>#{key}</span>" if HOBO_SHOW_LOCALE_KEYS
+      rescue
+        puts "Set HOBO_SHOW_LOCALE_KEYS=true in your environment to get all locale keys displayed"
+      end
+    
+      logger.info "..translate(#{key}, #{options.inspect}) to #{I18n.locale}"
+      I18n.translate(key.to_sym, options)+(key_prefix ? key_prefix:"")
     end
 
   end

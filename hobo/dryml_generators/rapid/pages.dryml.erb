@@ -17,21 +17,22 @@
 <%
 new_link = linkable?(:new)
 new_form = !new_link && linkable?(model, :create, :method => :post)
+model_key = model_name.pluralize.underscore
 -%>
 
 <def tag="index-page" for="<%= model.name %>">
-  <page merge title="#{t '<%=model_name :lowercase %>.page.index.title', :model=>'<%= model_name :title %>', :default=>[:'hobo.page.index.title', '<%=model_name :title, :plural %>'] }">
+  <page merge title="#{ht '<%= model_key %>.index.title', :default=>['<%= model_name :title, :plural %>'] }">
     <body: class="index-page <%= model_class %>" param/>
     <content: param>
       <header param="content-header">
         <h2 param="heading">
-          <trans key="page.index.heading" model="<%=model_name :lowercase %>">
+          <trans key="<%= model_key %>.index.heading">
             <%= model_name :title, :plural %>
           </trans>
         </h2>
 
         <p param="count" if>
-          <trans key="collection.count" model="<%=model_name :lowercase %>" count="&this.size">
+          <trans key="<%= model_key %>.collection.count" count="&this.size">
             There <count prefix="are"/>
           </trans>
         </p>
@@ -40,7 +41,7 @@ new_form = !new_link && linkable?(model, :create, :method => :post)
       <section param="content-body">
 <% if new_link -%>
         <a action="new" to="&model" param="new-link">
-          <trans key="action.new" model="<%=model_name :lowercase %>">New <%=model_name :title %></trans>
+          <trans key="<%= model_key %>.actions.new">New <%=model_name :title %></trans>
         </a>      
 <% end -%>
 
@@ -62,7 +63,7 @@ new_form = !new_link && linkable?(model, :create, :method => :post)
 <% if new_form -%>
         <div param="new-form">
           <h3 param="new-form-heading">
-            <trans key="form.new.heading" model="<%= model_name :lowercase %>">New <%= model_name :title %></trans>
+            <trans key="<%= model_key %>.form.new.heading">New <%= model_name :title %></trans>
           </h3>
           <form with="&new_for_current_user <%= model %>" param/>
         </div>
@@ -75,13 +76,13 @@ new_form = !new_link && linkable?(model, :create, :method => :post)
 
 
 <def tag="new-page" for="<%= model.name %>">
-  <page merge title="#{t '<%=model_name :lowercase %>.page.new.title', :model=>'<%=model_name :title %>', :default=>[:'hobo.page.new.title','New <%=model_name :title %>'] }">
+  <page merge title="#{ht '<%= model_key %>.new.title', :default=>['New <%=model_name :title %>'] }">
     <body: class="new-page <%= model_class %>" param/>
     
     <content: param>
       <section param="content-header">
         <h2 param="heading">
-          <trans key="page.new.heading" model="<%=model_name :lowercase %>">
+          <trans key="<%= model_key %>.new.heading">
             New <%= model_name :title %>
           </trans>
         </h2>
@@ -89,7 +90,7 @@ new_form = !new_link && linkable?(model, :create, :method => :post)
       
       <section param="content-body">
         <form param>
-          <submit: label="#{t '<%=model_name :lowercase %>.action.create', :model=>'<%=model_name :title %>', :default=>[:'hobo.action.create', 'Create <%= model_name :title %>']}"/>
+          <submit: label="#{ht '<%= model_key %>.actions.create', :default=>['Create <%= model_name :title %>']}"/>
         </form>
       </section>
     </content:>
@@ -124,7 +125,7 @@ unless model.view_hints.secondary_children.empty?
 end
 -%>
 <def tag="show-page" for="<%= model.name %>">
-  <page merge title="#{t '<%=model_name :lowercase %>.page.show.title',:model=>'<%=model_name :title %>', :default=>[:'hobo.page.show.title','<%=model_name :title %>'] }">
+  <page merge title="#{ht '<%=model_key %>.show.title', :default=>['<%=model_name :title %>'] }">
 
     <body: class="show-page <%= model_class %>" param/>
 
@@ -135,10 +136,10 @@ end
 <% end -%>
           <header param="content-header">
 <% if back_link -%>
-            <a:<%= back_link %> param="parent-link">&laquo; <trans key="action.back" to="<%= back_link %>"><name/></trans></a:<%= back_link %>>
+            <a:<%= back_link %> param="parent-link">&laquo; <trans key="<%= model_key %>.actions.back" to="<%= back_link %>"><name/></trans></a:<%= back_link %>>
 <% end -%>
             <h2 param="heading">
-              <trans key="page.show.heading" model="<%= model_name :lowercase %>" name="&this.name">
+              <trans key="<%= model_key %>.show.heading" name="&this.respond_to?(:name) ? this.name : ''">
                 <name/>
               </trans>
             </h2>
@@ -156,7 +157,7 @@ end
 <% if edit_link -%>
 
             <a action="edit" if="&can_edit?" param="edit-link">
-              <trans key="action.edit" model="<%=model_name :lowercase %>" name="&this.name">
+              <trans key="<%= model_key %>.actions.edit" name="&this.respond_to?(:name) ? this.name : ''">
                 Edit <%= model_name :title %>
               </trans>
             </a>
@@ -173,7 +174,7 @@ end
 <% if collection -%>
             <section param="collection-section">
               <h3 param="collection-heading">
-                <trans key="collection.heading.<%= (is_user_model ? 'your':'other') %>" model="<%= collection.to_s %>" >
+                <trans key="<%= model_key %>.collection.heading.<%= (is_user_model ? 'your':'other') %>" >
                   <%= '<Your/>' if is_user_model %><%= collection.to_s.titleize %>
                 </trans>
               </h3>
@@ -186,7 +187,7 @@ end
 <%   if add_link -%>
 
               <a:<%= collection %> action="new" if="&can_create?(@<%= model_name.underscore %>.<%= collection %>)" param="new-link">
-                <trans key="action.new" model="<%= collection.to_s.singularize %>" >
+                <trans key="<%= collection.to_s.pluralize %>.actions.new">
                   New <%= collection.to_s.singularize.titleize %>
                 </trans>
               </a:<%= collection %>>
@@ -194,13 +195,13 @@ end
 
               <section param="add-to-collection" if="&can_create?(@<%= model_name.underscore %>.<%= collection %>)">
                 <h3 param="add-form-heading">
-                  <trans key="collection.add_form_heading" model="<%= collection.to_s.singularize %>" >
+                  <trans key="<%= collection.to_s.pluralize %>.collection.add_form_heading" >
                     Add <%= a_or_an collection.to_s.singularize.titleize %>
                   </trans>
                 </h3>
                 <form with="&@<%= collection_class.name.underscore %> || new_for_current_user(@<%= model_name.underscore %>.<%= collection %>)" owner="<%= owner %>" without-cancel param>
                   <field-list: skip="<%= owner %>"/>
-                  <submit: label="#{t key='<%= collection.to_s.singularize %>.action.add',:model=>'<%= collection.to_s.singularize.titleize %>', default=>[:'hobo.action.add','Add']}"/>
+                  <submit: label="#{ht key='<%= collection.to_s.pluralize %>.actions.add', default=>['Add']}"/>
                 </form>
               </section>
 <%   end -%>
@@ -222,13 +223,13 @@ end
             </heading:>
 <%       end -%>
             <more:>
-              <trans key="action.more">more</trans>
+              <trans key="hobo.actions.more">more</trans>
             </more:>
           </preview-with-more:<%= refl.name %>.recent>
 <%     else -%>
           <section param="<%= refl.name %>-collection-section">
             <h3 param="<%= refl.name %>-collection">
-              <trans key="collection.heading.other" model="<%= refl.name.to_s %>" >
+              <trans key="<%= refl.name.to_s.pluralize %>.collection.heading.other" >
                 <%= refl.name.to_s.titleize %>
               </trans>
             </h3>
@@ -249,18 +250,18 @@ end
 name_attribute = model.name_attribute
 -%>
 <def tag="edit-page" for="<%= model.name %>">
-  <page merge title="#{t '<%= model_name :lowercase %>.page.edit.title', :model=>'<%= model_name :title %>', :default=>[:'hobo.page.edit.title','Edit <%=model_name :title %>'] }">
+  <page merge title="#{ht '<%= model_key %>.edit.title', :default=>['Edit <%=model_name :title %>'] }">
 
     <body: class="edit-page <%= model_class %>" param/>
 
     <content:>
       <section param="content-header">
         <h2 param="heading">
-          <trans key="page.edit.heading" model="<%= model_name %>" name="&this.name">
+          <trans key="<%= model_key %>.edit.heading" name="&this.respond_to?(:name) ? this.name : ''">
             Edit <type-name/>
           </trans>
         </h2>
-        <delete-button label="#{t '<%= model_name :lowercase %>.action.delete', :default=>[:'hobo.action.delete','Remove This <%= model_name :title %>'], :model=>'<%= model_name :title %>'}" param/>
+        <delete-button label="#{ht '<%= model_key %>.actions.delete', :default=>['Remove This <%= model_name :title %>']}" param/>
       </section>
 
       <section param="content-body">
@@ -288,36 +289,36 @@ new_link = :new.in?(actions)
 -%>
 <def tag="index-for-<%= owner.dasherize %>-page" polymorphic/>
 <def tag="index-for-<%= owner.dasherize %>-page" for="<%= model.name %>">
-  <page merge title="#{t '<%=model_name :lowercase %>.page.index_for_owner.title', :model=>'<%=model_name :title %>', :default=>[:'hobo.page.index_for_owner.title','<%=model_name :title, :plural %> for']} #{name :with => @<%= owner %>, :no_wrapper => true}">    
+  <page merge title="#{ht '<%= model_key %>.index_for_owner.title', :default=>['<%=model_name :title, :plural %> for']} #{name :with => @<%= owner %>, :no_wrapper => true}">    
     <body: class="index-for-owner-page <%= owner.dasherize %> <%= model_class %>" param/>
     <content: param>
       <header param="content-header">
 <% if linkable_owner -%>
         <div param="back-to">
-          <trans key="action.back">Back to</trans> <a with="&@<%= owner %>"/> 
+          <trans key="hobo.actions.back">Back to</trans> <a with="&@<%= owner %>"/> 
         </div>
 <% end -%>
 <% if owner_is_user %>
         <h2 param="heading">
-          <trans key="page.index_for_owner.heading.your" model="<%= model_name :lowercase %>" >
+          <trans key="<%= model_key %>.index_for_owner.heading.your">
             <Your with="&current_user"/><%= model_name :title, :plural %>
           </trans>
         </h2>
 <% else -%>
         <h2 param="heading">
-          <trans key="page.index_for_owner.heading.other" model="<%= model_name :lowercase %>" >
+          <trans key="<%= model_key %>.index_for_owner.heading.other">
             <%= model_name :title, :plural %>
           </trans>
         </h2>
         <h3 param="subheading">
-          <trans key="page.index_for_owner.subheading" model="<%= model_name :lowercase %>">
+          <trans key="<%= model_key %>.index_for_owner.subheading">
             For:
           </trans>
           <<%= owner_tag %> with="&@<%= owner %>"/>
         </h3>
 <% end -%>
         <p param="count" if>
-          <trans key="collection.count" model="<%= model_name :lowercase %>"  count="&this.size">
+          <trans key="<%= model_key %>.collection.count" count="&this.size">
             There <count prefix="are"/>
           </trans>
         </p>
@@ -326,7 +327,7 @@ new_link = :new.in?(actions)
       <section param="content-body">
 <% if new_link -%>
         <a action="new" to="&model" param="new-link">
-          <trans key="action.new" model="<%=model_name :lowercase %>" >New <%=model_name :title %></trans>
+          <trans key="<%= model_key %>.actions.new" >New <%=model_name :title %></trans>
         </a>
 
 <% end -%>
@@ -346,18 +347,18 @@ new_link = :new.in?(actions)
 <% if :new.in? actions -%>
 <def tag="new-for-<%= owner.dasherize %>-page" polymorphic/>
 <def tag="new-for-<%= owner.dasherize %>-page" for="<%= model.name %>">
-  <page merge title="#{t '<%=model_name :lowercase %>.page.new_for_owner.title', :model=>'<%=model_name :title %>', :default=>[:'hobo.page.new_for_owner.title','New <%=model_name :title %> for']} #{name :with => @<%= owner %>}">  
+  <page merge title="#{ht '<%=model_key %>.new_for_owner.title', :default=>['New <%=model_name :title %> for']} #{name :with => @<%= owner %>}">  
     <body: class="new-for-owner-page <% owner.dasherize %> <%= model_class %>" param/>
     
     <content: param>
       <header param="content-header">
         <h2 param="heading">
-          <trans key="page.new_for_owner.heading" model="<%= collection_name.to_s.singularize %>">
+          <trans key="<%= model_key %>.new_for_owner.heading">
             New <%= collection_name.to_s.singularize.titleize %>
           </trans>
         </h2>
         <h3 param="subheading">
-          <trans key="page.new_for_owner.subheading" model="<%= collection_name.to_s.singularize %>">
+          <trans key="<%= model_key %>.new_for_owner.subheading">
             For:
           </trans>
           <<%= owner_tag %> with="&@<%= owner %>"/>
@@ -367,7 +368,7 @@ new_link = :new.in?(actions)
       <section param="content-body">
         <form owner="<%= owner %>" method="post" param>
           <field-list: skip="<%= owner %>"/>
-          <submit: label="#{t '<%=model_name :lowercase %>.action.create', :model=>'<%=model_name :title %>', :default=>[:'hobo.action.create', 'Create <%= model_name :title %>']}"/>
+          <submit: label="#{ht '<%=model_key %>.actions.create', :default=>['Create <%= model_name :title %>']}"/>
         </form>
       </section>
     </content:>
@@ -380,14 +381,18 @@ new_link = :new.in?(actions)
 <% creator_names.each do |creator| -%>
 <def tag="<%= creator.dasherize %>-page" polymorphic/>
 <def tag="<%= creator.dasherize %>-page" for="<%= model.name %>">
-
-  <page title="<%= creator.titleize %>" merge>
+  
+  <page title="#{ht '<%=model_key %>.<%= creator.underscore %>.title', :default=>['<%= creator.titleize %>']}" merge>  
 
     <body: class="lifecycle-start-page <%= creator.dasherize %>-page" param/>
 
     <content: param>
       <header param="content-header">
-        <h2 param="heading"><%= creator.titleize %></h2>
+        <h2 param="heading">
+          <trans key="<%= model_key %>.<%= creator.underscore %>.heading">
+            <%= creator.titleize %>
+          </trans>
+        </h2>
       </header>
 
       <section param="content-body">
@@ -402,13 +407,17 @@ new_link = :new.in?(actions)
 <% transition_names.each do |transition| -%>
 <def tag="<%= transition.dasherize %>-page" polymorphic/>
 <def tag="<%= transition.dasherize %>-page" for="<%= model.name %>">
-  <page title="<%= transition.titleize %>" merge>
+  <page title="#{ht '<%=model_key %>.<%= transition.underscore %>.title', :default=>['<%= transition.titleize %>']}" merge>  
     
     <body: class="lifecycle-transition-page <%= transition.dasherize -%>-page" param/>
     
     <content:>
       <header param="content-header">
-        <h2 param="heading"><%= transition.titleize %></h2>
+        <h2 param="heading">
+          <trans key="<%= model_key %>.<%= transition.underscore %>.heading">
+            <%= transition.titleize %>
+          </trans>
+        </h2>
       </header>
       
       <section param="content-body">

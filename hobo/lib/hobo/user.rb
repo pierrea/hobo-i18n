@@ -163,7 +163,7 @@ module Hobo
 
 
     def validate_current_password_when_changing_password
-      changing_password? && !authenticated?(current_password) and errors.add :current_password, "is not correct"
+      changing_password? && !authenticated?(current_password) and errors.add :current_password
     end
 
   end

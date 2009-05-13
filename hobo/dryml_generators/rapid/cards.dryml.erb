@@ -18,6 +18,8 @@ has_actions = edit_link || delete_button
 has_body    = (!show_link && description_attribute) || creator_link || creator_attribute || primary_collection
 
 show_title = !show_link && (name_attribute || !has_body)
+
+model_key = model.name.pluralize.underscore
 -%>
 <def tag="card" for="<%= model.name %>">
   <card class="<%= model_name :dashed %>" param="default" merge>
@@ -36,7 +38,7 @@ show_title = !show_link && (name_attribute || !has_body)
       <div param="actions">
 <% if edit_link -%>
         <a action="edit" if="&can_edit?" param="edit-link">
-          <trans key="action.edit" model="<%= model.name %>">Edit</trans>
+          <trans key="<%= model_key %>.actions.edit">Edit</trans>
         </a>
 <% end -%>
 <% if delete_button -%>
@@ -57,7 +59,7 @@ show_title = !show_link && (name_attribute || !has_body)
       <view:<%= creator_attribute %> param="creator"/>
 <% end -%>
 <% if primary_collection -%>
-      <trans key="collection.count" model="<%= primary_collection.to_s.singularize %>" count="&this.<%= primary_collection %>.size">
+      <trans key="<%= primary_collection.to_s.pluralize.underscore %>.collection.count" count="&this.<%= primary_collection %>.size">
          <count:<%= primary_collection%> param/>
       </trans>
 <% end -%>

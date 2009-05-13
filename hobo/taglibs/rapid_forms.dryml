@@ -526,8 +526,8 @@ All the standard ajax attributes *except the callbacks* are supported (see the m
                                   else
                                     { :type => "button" }
                                   end)
-    label ||= "Remove"
-    confirm = "Are you sure?" if confirm.nil?
+    label ||= ht("hobo.actions.remove", :default=>"Remove") 
+    confirm = ht("hobo.messages.confirm", :default=>"Are you sure?") if confirm.nil?
     
     add_classes!(attributes,
                  image ? "image-button" : "button",
@@ -574,7 +574,7 @@ All of the standard ajax attributes are supported (see the main taglib documenti
   new = class_or_assoc.new(fields)
   new.set_creator(current_user)
   if can_create?(new)
-    label ||= "New #{new.class.name.titleize}"
+    label ||= ht("#{new.class.name.pluralize.underscore}.actions.new", :default=>"New #{new.class.name.titleize}")  
     ajax_attributes = { :message => message }
     class_name = new.class.name.underscore
     ajax_attributes[:params] = { class_name => fields } unless fields.empty?
@@ -603,7 +603,7 @@ For situations where there are too many target records to practically include in
 <def tag="select-one" attrs="include-none, blank-message, options, sort"><%
   raise HoboError.new("Not allowed to edit #{this_field}") if !attributes[:disabled] && !can_edit? 
 
-  blank_message ||= "(No #{this_type.name.to_s.titleize})"
+  blank_message ||= ht("#{this_type.name.underscore}.message.no", :default=>"(No #{this_type.name.to_s.titleize})") 
    
   options ||= begin
     conditions = ActiveRecord::Associations::BelongsToAssociation.new(this_parent, this_field_reflection).conditions
@@ -673,16 +673,15 @@ The completions are provided by the server with a GET request. The `complete-tar
 </def>
 
 
-<!-- Renders a readable list of error messages following a form submission. Expects the errors to be in `this.errors`. Renders nothing if there are no errors.
+<!-- 
+  Renders a readable list of error messages following a form submission. 
+  Expects the errors to be in `this.errors`. Renders nothing if there are no errors.
+  This is just a wrapper around rails error_messages_for helper (see there for options).
   -->
 <def tag="error-messages">
+  <% attributes.reverse_merge!(:object=>this) -%>
   <section class="error-messages" merge-attrs if="&this.errors.length > 0">
-    <h2 param="heading">To proceed please correct the following:</h2>
-    <ul param>
-      <% this.errors.each do |attr, message|; next if message == "..." -%>
-        <li param><%= attr.titleize %> <%= message %></li>
-      <% end -%>
-    </ul>
+    <%= error_messages_for this.class.name.underscore,  attributes -%>
   </section>
 </def>
 
@@ -695,15 +694,15 @@ To use this tag, the model of the items the user is chosing *must* have unique n
 <def tag="select-many" attrs="options, targets, remove-label, prompt, disabled"><%
   prompt ||= "Add #{this_field.titleize.singularize}"
   options ||= this_field_reflection.klass.all(:conditions =>this.conditions).select {|x| can_view?(x)}
-                
   values = this
+  remove_label ||= ht("hobo.actions.remove", :default=>'Remove')
   -%>
   <div class="input select-many" merge-attrs>
     <div style="display:none" class="item-proto">
       <div class="item" param="proto-item">
         <span></span>
         <input type="hidden" name="#{param_name_for_this}[]" param="proto-hidden"/>
-        <input type="button" class="remove-item" value="#{remove_label || 'Remove'}" param="proto-remove-button"/>
+        <input type="button" class="remove-item" value="#{remove_label}" param="proto-remove-button"/>
       </div>
     </div>
     <div class="items">
@@ -712,7 +711,7 @@ To use this tag, the model of the items the user is chosing *must* have unique n
         <span><%= h this.to_s %></span>
         <input type="hidden" name="#{param_name}[]" value="@#{h this.id}" disabled="&disabled"
                param="hidden"/>
-        <input type="button" class="remove-item" value="#{remove_label || 'Remove'}" disabled="&disabled"
+        <input type="button" class="remove-item" value="#{remove_label}" disabled="&disabled"
                param="remove-button"/>
       </div>
     </div>
@@ -861,8 +860,8 @@ The body of the tag will be repeated for each of the current records in the coll
 <!-- Renders the common "or (Cancel)" for a form. Attributes are merged into the link (`<a>Cancel</a>`), making it easy to customise the destination of the cancel link. By default it will link to `this` or `this.class`.
   -->
 <def tag="or-cancel">
-  <if test="&linkable?"><trans key="hobo.or">or</trans> <a merge-attrs><trans key="hobo.action.cancel">Cancel</trans></a></if>
+  <if test="&linkable?"><trans key="hobo.support.or">or</trans> <a merge-attrs><trans key="hobo.actions.cancel">Cancel</trans></a></if>
   <else>
-    <if test="&linkable?(this.class)"><trans key="hobo.or">or</trans> <a to="&this.class" merge-attrs><trans key="hobo.action.cancel">Cancel</trans></a></if>
+    <if test="&linkable?(this.class)"><trans key="hobo.support.or">or</trans> <a to="&this.class" merge-attrs><trans key="hobo.actions.cancel">Cancel</trans></a></if>
   </else>
 </def>

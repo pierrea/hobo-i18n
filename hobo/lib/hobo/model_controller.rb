@@ -530,7 +530,7 @@ module Hobo
 
 
     def create_response(new_action, options={}, &b)
-      flash[:notice] = "The #{@this.class.name.titleize.downcase} was created successfully" if !request.xhr? && valid?
+      flash[:notice] = ht( :"#{@this.class.name.pluralize.underscore}.messages.create.success", :default=>["The #{@this.class.name.titleize.downcase} was created successfully"]) if !request.xhr? && valid?
 
       response_block(&b) or
         if valid?
@@ -540,10 +540,11 @@ module Hobo
           end
         else
           respond_to do |wants|
+            errors = this.errors.full_messages.join("\n")
             wants.html { re_render_form(new_action) }
             wants.js   { render(:status => 500,
-                                :text => ("Couldn't create the #{this.class.name.titleize.downcase}.\n" +
-                                          this.errors.full_messages.join("\n"))) }
+                                :text => ht( :"#{this.class.name.pluralize.underscore}.messages.create.error", :errors=>errors,:default=>["Couldn't create the #{this.class.name.titleize.downcase}.\n #{errors}"])
+                               )}
           end
         end
     end
@@ -553,7 +554,7 @@ module Hobo
       options = args.extract_options!
 
       self.this ||= args.first || find_instance
-      changes = options[:attributes] || attribute_parameters or raise RuntimeError, "No update specified in params"
+      changes = options[:attributes] || attribute_parameters or raise RuntimeError, ht(:"hobo.messages.update.no_attribute_error", :default=>["No update specified in params"])
       this.user_update_attributes(current_user, changes)
 
       # Ensure current_user isn't out of date
@@ -565,7 +566,8 @@ module Hobo
 
 
     def update_response(in_place_edit_field=nil, options={}, &b)
-      flash[:notice] = "Changes to the #{@this.class.name.titleize.downcase} were saved" if !request.xhr? && valid?
+      
+      flash[:notice] = ht(:"#{@this.class.name.pluralize.underscore}.messages.update.success", :default=>["Changes to the #{@this.class.name.titleize.downcase} were saved"]) if !request.xhr? && valid?
 
       response_block(&b) or
         if valid?
@@ -588,10 +590,11 @@ module Hobo
           end
         else
           respond_to do |wants|
+            errors = @this.errors.full_messages.join("\n")
             wants.html { re_render_form(:edit) }
             wants.js { render(:status => 500,
-                              :text => ("There was a problem with that change.\n" +
-                                        @this.errors.full_messages.join("\n"))) }
+                              :text => ht(:"#{@this.class.name.pluralize.underscore}.messages.update.error",:default=>["There was a problem with that change.\n#{errors}"], :errors=>errors)
+                             ) }
           end
         end
     end
@@ -601,7 +604,7 @@ module Hobo
       options = args.extract_options!
       self.this ||= args.first || find_instance
       this.user_destroy(current_user)
-      flash[:notice] = "The #{model.name.titleize.downcase} was deleted" unless request.xhr?
+      flash[:notice] = ht( :"#{model.name.pluralize.underscore}.messages.destroy.success", :default=>["The #{model.name.titleize.downcase} was deleted"]) unless request.xhr?
       destroy_response(&b)
     end
 
@@ -684,6 +687,7 @@ module Hobo
     def hobo_reorder
       ordering = params["#{model.name.underscore}_ordering"]
       if ordering
+        ordering = ordering.delete_if{|e|e.blank?}
         ordering.each_with_index do |id, position|
           model.find(id).user_update_attributes(current_user, :position => position+1)
         end
@@ -708,11 +712,11 @@ module Hobo
             if render_tag("permission-denied-page", { }, :status => 403)
               # job done
             else
-              render :text => "Permission Denied", :status => 403
+              render :text => ht(:"hobo.messages.permission_denied", :default=>["Permission Denied"]), :status => 403
             end
           end
           wants.js do
-            render :text => "Permission Denied", :status => 403
+            render :text => ht(:"hobo.messages.permission_denied", :default=>["Permission Denied"]), :status => 403
           end
         end
       end
@@ -725,7 +729,7 @@ module Hobo
       elsif render_tag("not-found-page", {}, :status => 404)
         # cool
       else
-        render(:text => "The page you requested cannot be found.", :status => 404)
+        render(:text => ht(:"hobo.messages.not_found", :default=>["The page you requested cannot be found."]) , :status => 404)
       end
     end
 
